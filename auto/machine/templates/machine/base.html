@@ -52,11 +52,26 @@
 
     let data = new PageData();
 
-    {%for product in products%}
-        data.setMachineCoin({{product.amount}});
+    {%for coin in coins%}
+        data.setMachineCoins({{coin.value}},{{coin.amount}});
+        data.setExistingCoins({{coin.value}});
     {%endfor%}
-    let sup = data.0getAmountOfMachineCoins(5);
-    alert(sup);
+
+    {%for product in products%}
+        data.setMachineProducts({{product.id}},{{product.amount}},{{product.cost}});
+    {%endfor%}
+    data.addCoin(10);
+    data.addCoin(10);
+    data.addCoin(10);
+    data.addCoin(10);
+    data.addCoin(10);
+    data.addCoin(10);
+
+    data.addProductToBucket(1);
+    data.canBuy();
+    //alert(sup);
+    //alert(dup);
+
     })
 
 
