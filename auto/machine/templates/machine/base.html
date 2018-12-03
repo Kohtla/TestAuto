@@ -45,7 +45,22 @@
   crossorigin="anonymous"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="{% static 'machine/css/bootstrap.css' %}">
+<script type="text/javascript" src = "{% static 'machine/js/main.js'%}"></script>
+<script>
+    $(document).ready(function(){
 
+    let data = new PageData();
+
+    {%for product in products%}
+        data.setMachineCoin({{product.amount}});
+    {%endfor%}
+    let sup = data.0getAmountOfMachineCoins(5);
+    alert(sup);
+    })
+
+
+</script>
 
 </body>
 </html>

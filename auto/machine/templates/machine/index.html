@@ -4,6 +4,8 @@
 
 {% block content %}
 <div class = "container">
+
+
     <div class = "row">
         <div class = "col-lg-3">
 
@@ -49,10 +51,10 @@
             </div>
 
             <div class = "row justify-content-center">
-                <div class ="flex"><button type="button" class="btn btn-secondary btn-lg">1 рубль</button></div>
-                <div class ="flex"><button type="button" class="btn btn-secondary btn-lg">2 рубля</button></div>
-                <div class ="flex"><button type="button" class="btn btn-secondary btn-lg">5 рублей</button></div>
-                <div class ="flex"><button type="button" class="btn btn-secondary btn-lg">10 рублей</button></div>
+                {% for coin in coins %}
+
+                <div class ="flex"><button type="button" class="btn btn-secondary btn-lg" id = "button-{{coin.value}}" value = "{{coin.value}}">{{coin.name}}</button></div>
+                {% endfor %}
             </div>
 
             <div class = "row justify-content-center">
@@ -60,30 +62,39 @@
             </div>
 
             <div class = "row justify-content-center">
-                <h1>69 руб.</h1>
+                <h1 id = "AllMoney">69 руб.</h1>
             </div>
 
             <div class = "row justify-content-center">
-
+                {% for product in products %}
                 <div class = "col-lg-4">
 
                     <div class="card mb-3">
                         <div class="card-body">
-                            <h4 class="card-title">Coca Cola 0,5</h4>
+                            <h4 class="card-title">#<span id="prod-id-{{product.id}}">{{product.id}}</span> {{product.name}}, <span id = "prod-cost-{{product.id}}">{{product.cost}}</span> rub.</h4>
                         </div>
-                        <img style="height: 125px; width: 100%; display: block;" src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22318%22%20height%3D%22180%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20318%20180%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_158bd1d28ef%20text%20%7B%20fill%3Argba(255%2C255%2C255%2C.75)%3Bfont-weight%3Anormal%3Bfont-family%3AHelvetica%2C%20monospace%3Bfont-size%3A16pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_158bd1d28ef%22%3E%3Crect%20width%3D%22318%22%20height%3D%22180%22%20fill%3D%22%23777%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22129.359375%22%20y%3D%2297.35%22%3EImage%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E" alt="Card image">
+                        <div class = "row justify-content-center">
+                            <img style="height: 125px; width: 125px; display: block;" src="{{product.pic}}" alt="Card image">
+                        </div>
+
                         <div class="card-body">
-                            <p class="card-text">Вкусный приятный пример</p>
+                            <p class="card-text">{{product.description}}</p>
                         </div>
                         <div class="card-body">
-                            <button type="button" class="btn btn-secondary btn-sm">Добавить в корзину</button>
+                            <button type="button" class="btn btn-secondary btn-sm" id = "prod-{{product.id}}">Добавить в корзину</button>
                         </div>
                         <div class="card-footer text-muted">
-                            5 осталось
+                            <span id = "amount-{{product.id}}">{{product.amount}}</span> осталось
                         </div>
                     </div>
 
                 </div>
+                {% if forloop.counter|divisibleby:4 %}
+                </div>
+                <div class = "row justify-content-center">
+                {% endif %}
+                {% endfor %}
+
 
 
             </div>
