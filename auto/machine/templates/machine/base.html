@@ -48,7 +48,10 @@
 <link rel="stylesheet" href="{% static 'machine/css/bootstrap.css' %}">
 <script type="text/javascript" src = "{% static 'machine/js/main.js'%}"></script>
 <script>
+
     $(document).ready(function(){
+
+    $("#buy").prop( "disabled", true );        
 
     let data = new PageData();
 
@@ -58,17 +61,37 @@
     {%endfor%}
 
     {%for product in products%}
-        data.setMachineProducts({{product.id}},{{product.amount}},{{product.cost}});
+        data.setMachineProducts({{product.id}},"{{product.name}}",{{product.amount}},{{product.cost}});
     {%endfor%}
-    data.addCoin(10);
-    data.addCoin(10);
-    data.addCoin(10);
-    data.addCoin(10);
-    data.addCoin(10);
-    data.addCoin(10);
 
-    data.addProductToBucket(1);
-    data.canBuy();
+    $("button").click(function(button){
+        let ids = $(this).attr('id');
+        if(ids == "buy")
+        {
+            console.log("Покупка...");
+            url = {% url 'machine:index' %};
+            data.send(url);
+
+        }
+        else if(ids.split("-")[0] == "prod")
+        {
+            let val = ids.split("-")[1];
+            console.log("Добавление в корзину...")
+            data.addProductToBucket(parseInt(val));
+        }
+        else if(ids.split("-")[0] == "button")
+        {
+            let val = ids.split("-")[1];
+            //console.log(val);
+            data.addCoin(parseInt(val));
+            //data.addCoin(intParse(val));
+        }
+        data.renderPage();
+    });
+
+    
+    
+    //data.getDeliveryArray();
     //alert(sup);
     //alert(dup);
 

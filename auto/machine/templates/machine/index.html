@@ -15,29 +15,22 @@
                 </h3>
             </div>
             <div class = "row">
-            <div class="list-group">
-                <a href="#" class="list-group-item list-group-item-action">Coca Cola 0,5
-                </a>
-                <a href="#" class="list-group-item list-group-item-action">Coca Cola 0,5
-                </a>
-                <a href="#" class="list-group-item list-group-item-action">Coca Cola 0,5
-                </a>
+            <div class="list-group" id = "bucketList">
+
             </div>
             </div>
             <br>
             <div class = "row">
-                <h4> Стоимость: 45 руб.</h4>
+                <h4> Стоимость: <span id ="price">0</span> руб.</h4>
             </div>
             <div class = "row">
-                <h4> Сдача: 40 руб</h4>
+                <h4> <span id = "delivery">Сдача: 0 руб</span></h4>
             </div>
-                <p>1 рубль х0</p>
-                <p>2 рубля х0</p>
-                <p>5 рублей х0</p>
-                <p>10 рублей х4</p>
+                <div id = "deliveryBlock">
+                </div>
             <div class = "row">
 
-                <button type="button" class="btn btn-secondary btn-lg">Купить</button>
+                <button type="button" class="btn btn-secondary btn-lg" id="buy">Купить</button>
 
             </div>
 
@@ -50,7 +43,7 @@
                 <h3>Вставьте монеты</h3>
             </div>
 
-            <div class = "row justify-content-center">
+            <div class = "row justify-content-center" id = "buttons">
                 {% for coin in coins %}
 
                 <div class ="flex"><button type="button" class="btn btn-secondary btn-lg" id = "button-{{coin.value}}" value = "{{coin.value}}">{{coin.name}}</button></div>
@@ -62,7 +55,7 @@
             </div>
 
             <div class = "row justify-content-center">
-                <h1 id = "AllMoney">69 руб.</h1>
+                <h1><span id = "allMoney">0</span> руб.</h1>
             </div>
 
             <div class = "row justify-content-center">

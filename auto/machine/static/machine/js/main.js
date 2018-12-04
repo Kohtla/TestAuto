@@ -1,9 +1,29 @@
+function csrfSafeMethod(method) {
+    // these HTTP methods do not require CSRF protection
+    return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+}
+
 function div(val, by){
     return (val - val % by) / by;
 }
 
 function sortNumber(a,b) {
     return b - a;
+}
+function getCookie(name) {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = jQuery.trim(cookies[i]);
+            // Does this cookie string begin with the name we want?
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 class PageData
@@ -16,8 +36,33 @@ class PageData
 		this.machineProducts = [];
 		this.existingCoins = [];
 		this.price = 0;
+		this.delivery = 0;
 		this.bucketProducts =[];
 		this.error = "";
+	}
+
+
+	send(url)
+	{
+		//let csrftoken = jQuery("[name=csrfmiddlewaretoken]").val();
+		let csrftoken = getCookie('csrftoken');
+		console.log(csrftoken);
+		$.ajaxSetup({
+				beforeSend: function(xhr, settings) {
+		        if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+		            xhr.setRequestHeader("X-CSRFToken", csrftoken);
+		        }
+		    }
+		    
+		});
+		$.ajax({
+			type: 'POST',
+			url: url,
+			data: {products: this.bucketProducts},
+			success: function(){
+				console.log(this.bucketProducts);
+			}
+		});
 	}
 	//Методы удаления из массива
 	removeObjById(array, id) {
@@ -26,9 +71,98 @@ class PageData
 	  array.splice(index, 1);
 	}
 
-	renderPage()
+	existDelivery(array, val)
+	{
+		let flag = false;
+		array.forEach(item =>{
+			if(item.id == val.id)
+			{
+				//console.log(item.id, val.id)
+				flag = true
+			}
+		});
+		return flag;
+	}
+
+	addDelivery(array, val)
+	{
+		array.forEach(item=>{
+			if(item.id == val.id)
+			{
+				item.amount += 1;
+			}
+		});
+	}
+
+	//Достать массив сдачи
+	getDeliveryArray()
 	{
 		
+		let retArr = []; 
+		this.returnMoney.forEach(item=>{
+
+			let obj = {"id": item, "amount":1};
+			//console.log(this.existDelivery(retArr,obj))
+			if(!this.existDelivery(retArr,obj))
+			{
+				retArr.push(obj);
+			}
+			else
+			{
+				this.addDelivery(retArr, obj);
+			}
+		});
+		//console.log(retArr);
+		return retArr;
+	}
+
+	renderPage()
+	{
+		//console.log(this.canBuy());
+		if(this.canBuy())
+		{
+			$("#buy").prop( "disabled", false);
+			$("#delivery").html("Сдача: "+this.delivery+" руб");
+		}
+		else
+		{
+			this.returnMoney = [];
+			$("#delivery").html(this.error);
+			$("#deliveryBlock").html('');
+		}
+		
+		$("#allMoney").html(this.getEnteredMoney());
+		
+		$("#price").html(this.price);
+
+		this.machineProducts.forEach(prod=>{
+			let am = this.getAmountOfMachineProducts(prod.id);
+			if(am == 0)
+			{
+				$("#prod-"+prod.id).prop("disabled", true);
+			}
+			//console.log("#amount-"+prod.id, am);
+			$("#amount-"+prod.id).html(am);
+		});
+
+		let bucketListContent = "";
+
+		this.bucketProducts.forEach(prod=>{
+			bucketListContent += '<a href="#" class="list-group-item list-group-item-action">' + prod.name+' - '+prod.price+ ' руб.</a>';
+			//console.log(prod.name, prod.price);
+		});
+		$("#bucketList").html(bucketListContent);
+
+		let deliveryBlockContent = "";
+		let arr = this.getDeliveryArray();
+		arr.forEach(item=>{
+
+			deliveryBlockContent += '<p><span class="badge badge-primary">'+item.id+' руб. - x'+ item.amount+'</span></p>';
+
+		});
+		$("#deliveryBlock").html(deliveryBlockContent);
+
+
 	}
 
 	remove(array, id)
@@ -39,21 +173,32 @@ class PageData
 
 	canBuy()
 	{
+		this.returnMoney.forEach(item=>{
+			this.machineMoney.push(item);
+		});
+		this.returnMoney = [];
+		let flag = false;
 		if(this.price > this.getEnteredMoney())
 		{
-			this.error = "Вам не хватает денег!"
+			this.error = "Вам не хватает денег..."
 			console.log(this.error);
-			return false
+			return flag;
 		}
 		else if (this.price == 0)
 		{
-			this.error = "Товаров не выбрано..."
+			this.error = "Товар не выбран..."
 			console.log(this.error)
-			return false
+			return flag;
+		}
+		else if (this.price == this.getEnteredMoney() && this.price > 0)
+		{
+			this.error = "Денег хватает, сдача не нужна..."
+			flag = true;
+			return flag
 		}
 		else if (true) 
 		{
-			console.log("Денег хватает, просчитываем сдачу");
+			console.log("Денег хватает, просчитываем сдачу...");
 			return this.predictReturnMoney();
 		}
 
@@ -87,7 +232,9 @@ class PageData
 
 	predictReturnMoney()
 	{
+		let flag = false;
 		let delivery = this.getEnteredMoney() - this.price;
+		this.delivery = delivery;
 		console.log("Сдача: "+delivery);
 
 		this.existingCoins.sort(sortNumber);
@@ -103,7 +250,7 @@ class PageData
 					{
 						console.log("Сдача подобрана...");
 						console.log(this.returnMoney);						
-						return true;
+						flag = true;
 					}
 				}
 			}
@@ -113,7 +260,7 @@ class PageData
 			}			
 
 		});
-		return false;		
+		return flag;		
 	}
 
 	//
@@ -147,7 +294,9 @@ class PageData
 	{
 		let item = this.getMachineProductById(id)
 		this.removeObjById(this.machineProducts, id);
-		this.bucketProducts.push(id);
+		item.amount -= 1;
+		this.machineProducts.push(item);
+		this.bucketProducts.push(item);
 		this.price += item.price;		
 	}
 
@@ -168,12 +317,9 @@ class PageData
 	}
 
 	//Чтение количества продуктов в базе данных
-	setMachineProducts(id, amount, price)
+	setMachineProducts(id, name, amount, price)
 	{
-		for(let i =0; i < amount; i++)
-		{
-			this.machineProducts.push({"id":id, "price":price});
-		}	
+		this.machineProducts.push({"id":id, "name":name, "amount":amount, "price":price});	
 	}
 
 
@@ -181,15 +327,7 @@ class PageData
 	//Количество продуктов с определенным ID
 	getAmountOfMachineProducts(id)
 	{
-		let amount = 0;
-
-		this.machineProducts.forEach(function(item){
-			if(item == id)
-			{
-				amount+=1;
-			}
-		});
-		return amount;
+		return this.getMachineProductById(id).amount;
 	}
 
 	//Внесенная сумма
